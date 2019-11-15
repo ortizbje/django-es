@@ -1,0 +1,32 @@
+version: '3'
+services:
+
+  elasticsearch:
+    image: elasticsearch:7.4.2
+    volumes:
+      - data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+  postgres:
+    image: postgres
+
+  django:
+    container_name: elastic_drf_example_django
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "80:8000"
+    volumes:
+      - .:/code
+    depends_on:
+      - postgres
+      - elasticsearch
+
+volumes:
+  data:
